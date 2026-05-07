@@ -2,7 +2,10 @@ package com.example.bootdemo.controller;
 
 import com.example.bootdemo.common.Result;
 import com.example.bootdemo.domain.User;
+import com.example.bootdemo.domain.dto.UserDTO;
+import com.example.bootdemo.domain.dto.UserUpdateDTO;
 import com.example.bootdemo.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,9 +25,9 @@ public class UserController {
      * 新增用户
      */
     @PostMapping
-    public Result<Boolean> save(@RequestBody User user) {
-        boolean success = userService.save(user);
-        return success ? Result.success(true) : Result.error("新增失败");
+    public Result<User> save(@Valid @RequestBody UserDTO userDTO) {
+        User user = userService.createUser(userDTO);
+        return Result.success(user);
     }
 
     /**
@@ -40,9 +43,9 @@ public class UserController {
      * 更新用户
      */
     @PutMapping
-    public Result<Boolean> updateById(@RequestBody User user) {
-        boolean success = userService.updateById(user);
-        return success ? Result.success(true) : Result.error("更新失败");
+    public Result<User> updateById(@Valid @RequestBody UserUpdateDTO userDTO) {
+        User user = userService.updateUser(userDTO);
+        return Result.success(user);
     }
 
     /**
@@ -70,5 +73,14 @@ public class UserController {
     public Result<User> getByUsername(@PathVariable String username) {
         User user = userService.getByUsername(username);
         return user != null ? Result.success(user) : Result.error("用户不存在");
+    }
+
+    /**
+     * 检查用户名是否存在
+     */
+    @GetMapping("/check-username")
+    public Result<Boolean> checkUsername(@RequestParam String username) {
+        boolean exists = userService.isUsernameExists(username);
+        return Result.success(exists);
     }
 }
